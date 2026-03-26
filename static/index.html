@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZipMasters Compression</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f9;
+            color: #333;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>ZipMasters</h1>
+        <p>Upload a .txt file to compress it using Huffman Coding.</p>
+
+        <input type="file" id="fileInput" accept=".txt">
+        <br>
+        <button onclick="compressFile()">Compress File</button>
+
+        <div id="status"></div>
+
+        <hr style="margin: 30px 0; border: 1px solid #eee;">
+
+        <h2>Decompress File</h2>
+        <p>Upload the <b>.bin</b> file and provide the original filename to locate the mapping.</p>
+
+        <input type="file" id="decodeFileInput" accept=".bin">
+        <br>
+        <input type="text" id="originalFilename" placeholder="Original filename (e.g., sample.txt)"
+            style="padding: 8px; margin: 10px 0; width: 80%; border: 1px solid #ccc; border-radius: 4px;">
+        <br>
+        <button onclick="decompressFile()" style="background: #27ae60;">Decompress File</button>
+
+        <div id="decodeStatus" style="margin-top: 20px; font-weight: bold; color: #27ae60;"></div>
+    </div>
+
+    <script>
+        async function compressFile() {
+            const fileInput = document.getElementById('fileInput');
+            const statusDiv = document.getElementById('status');
+
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            statusDiv.innerText = "Compressing...";
+
+            try {
+                const response = await fetch('/compress', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Trigger file download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "compressed_" + file.name.replace('.txt', '.bin');
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+
+                    statusDiv.innerText = "Compression Complete! File downloaded.";
+                } else {
+                    statusDiv.innerText = "Error during compression.";
+                    statusDiv.style.color = "red";
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerText = "Network Error.";
+            }
+        }
+
+        async function decompressFile() {
+            const fileInput = document.getElementById('decodeFileInput');
+            const originalNameInput = document.getElementById('originalFilename');
+            const statusDiv = document.getElementById('decodeStatus');
+
+            if (fileInput.files.length === 0 || !originalNameInput.value) {
+                alert('Please select a .bin file and type the exact original filename (e.g., test.txt).');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('original_filename', originalNameInput.value);
+
+            statusDiv.innerText = "Decompressing data and rebuilding text...";
+            statusDiv.style.color = "#27ae60";
+
+            try {
+                const response = await fetch('/decompress', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Trigger file download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = "restored_" + originalNameInput.value;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+
+                    statusDiv.innerText = "Decompression Complete! File restored.";
+                } else {
+                    const errText = await response.text();
+                    statusDiv.innerText = errText;
+                    statusDiv.style.color = "red";
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerText = "Network Error.";
+                statusDiv.style.color = "red";
+            }
+        }
+    </script>
+
+</body>
+
+</html>
