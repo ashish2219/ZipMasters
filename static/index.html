@@ -4,51 +4,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZipMasters Compression</title>
+    <title>ZipMasters Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- PREMIUM THEME VARIABLES --- */
+        :root {
+            --bg-body: linear-gradient(135deg, #f6f9fc 0%, #e9ecef 100%);
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-dropzone: rgba(243, 246, 249, 0.6);
+            --border-color: #d2dce6;
+            --text-main: #1a1f36;
+            --text-muted: #697386;
+            --accent-primary: #635bff;
+            --accent-hover: #4a3aff;
+            --accent-secondary: #00d4ff;
+            --success-green: #00d924;
+            --error-red: #ff2f4c;
+            --card-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-card: rgba(30, 41, 59, 0.85);
+            --bg-dropzone: rgba(15, 23, 42, 0.6);
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- GLOBAL STYLES --- */
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f4f9;
-            color: #333;
-            padding: 40px;
-            text-align: center;
+            background: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.4s ease, color 0.4s ease;
         }
 
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            margin: auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px 50px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--card-shadow);
+            max-width: 580px;
+            width: 100%;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         h1 {
-            color: #2c3e50;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin: 0 0 10px 0;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        input[type="file"] {
-            margin: 20px 0;
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 30px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        button {
-            background: #3498db;
-            color: white;
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* --- THEME TOGGLE --- */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(128, 128, 128, 0.1);
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(128, 128, 128, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* --- DROPZONES --- */
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-dropzone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            background: var(--bg-dropzone);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .file-upload-wrapper:hover .file-dropzone {
+            border-color: var(--accent-primary);
+            background: rgba(99, 91, 255, 0.05);
+            color: var(--accent-primary);
+        }
+
+        .file-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* --- INPUTS & BUTTONS --- */
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            background: var(--bg-dropzone);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.15);
+        }
+
+        .action-btn {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(99, 91, 255, 0.3);
+            margin-bottom: 15px;
         }
 
-        button:hover {
-            background: #2980b9;
+        .action-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 91, 255, 0.4);
         }
 
-        #status {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #27ae60;
+        .btn-decode {
+            background: transparent;
+            border: 2px solid var(--success-green);
+            color: var(--success-green);
+            box-shadow: none;
+        }
+
+        .btn-decode:hover {
+            background: rgba(0, 217, 36, 0.1);
+            box-shadow: none;
+        }
+
+        .status {
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        hr {
+            margin: 35px 0;
+            border: 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- PROGRESS BAR UI --- */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-dropzone);
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.4s ease;
         }
     </style>
 </head>
@@ -56,31 +264,125 @@
 <body>
 
     <div class="container">
-        <h1>ZipMasters</h1>
-        <p>Upload a .txt file to compress it using Huffman Coding.</p>
+        <button id="themeToggleBtn" class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
 
-        <input type="file" id="fileInput" accept=".txt">
-        <br>
-        <button onclick="compressFile()">Compress File</button>
+        <div class="header-section">
+            <h1>ZipMasters</h1>
+            <p>Smart, adaptive file compression engine.</p>
+        </div>
 
-        <div id="status"></div>
+        <div class="file-upload-wrapper">
+            <input type="file" id="fileInput" onchange="updateFileName('fileInput', 'compressFileLabel')">
+            <div class="file-dropzone" id="compressFileLabel">
+                <span class="file-icon">📄</span>
+                <span>Drag & Drop or Click to Upload File</span>
+            </div>
+        </div>
 
-        <hr style="margin: 30px 0; border: 1px solid #eee;">
+        <button class="action-btn" onclick="compressFile()">
+            <span>🗜️</span> Compress Data
+        </button>
 
-        <h2>Decompress File</h2>
-        <p>Upload the <b>.bin</b> file and provide the original filename to locate the mapping.</p>
+        <div class="progress-container" id="compressProgressBox">
+            <div class="progress-bar" id="compressProgressBar"></div>
+        </div>
+        <div id="status" class="status"></div>
 
-        <input type="file" id="decodeFileInput" accept=".bin">
-        <br>
-        <input type="text" id="originalFilename" placeholder="Original filename (e.g., sample.txt)"
-            style="padding: 8px; margin: 10px 0; width: 80%; border: 1px solid #ccc; border-radius: 4px;">
-        <br>
-        <button onclick="decompressFile()" style="background: #27ae60;">Decompress File</button>
+        <hr>
 
-        <div id="decodeStatus" style="margin-top: 20px; font-weight: bold; color: #27ae60;"></div>
+        <h2><span>🔓</span> Restore Data</h2>
+        <p>Upload your <b>.bin</b> archive and original filename to reconstruct the data.</p>
+
+        <div class="file-upload-wrapper">
+            <input type="file" id="decodeFileInput" accept=".bin"
+                onchange="updateFileName('decodeFileInput', 'decodeFileLabel')">
+            <div class="file-dropzone" id="decodeFileLabel" style="padding: 20px;">
+                <span class="file-icon" style="font-size: 1.5rem;">📦</span>
+                <span>Select .bin File</span>
+            </div>
+        </div>
+
+        <input type="text" id="originalFilename" placeholder="Original filename (e.g., report.docx)">
+
+        <button class="action-btn btn-decode" onclick="decompressFile()">
+            <span>✨</span> Decompress File
+        </button>
+
+        <div class="progress-container" id="decompressProgressBox">
+            <div class="progress-bar" id="decompressProgressBar"></div>
+        </div>
+        <div id="decodeStatus" class="status"></div>
     </div>
 
     <script>
+        // --- UI HELPER: Update Dropzone text ---
+        function updateFileName(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            if (input.files.length > 0) {
+                const fileName = input.files[0].name;
+                label.innerHTML = `<span style="color: var(--accent-primary); font-weight: 600;">✓ ${fileName} ready</span>`;
+            } else {
+                label.innerHTML = `<span class="file-icon">📄</span><span>Drag & Drop or Click to Upload</span>`;
+            }
+        }
+
+        // --- THEME TOGGLE LOGIC ---
+        const htmlEl = document.documentElement;
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const savedTheme = localStorage.getItem('zipmasters-theme');
+
+        if (savedTheme === 'dark') {
+            htmlEl.setAttribute('data-theme', 'dark');
+            themeBtn.innerText = '☀️ Light';
+        }
+
+        function toggleTheme() {
+            if (htmlEl.getAttribute('data-theme') === 'dark') {
+                htmlEl.removeAttribute('data-theme');
+                localStorage.setItem('zipmasters-theme', 'light');
+                themeBtn.innerText = '🌙 Dark';
+            } else {
+                htmlEl.setAttribute('data-theme', 'dark');
+                localStorage.setItem('zipmasters-theme', 'dark');
+                themeBtn.innerText = '☀️ Light';
+            }
+        }
+
+        // --- PROGRESS BAR ENGINE ---
+        let activeInterval;
+
+        function startProgress(boxId, barId) {
+            clearInterval(activeInterval);
+            document.getElementById(boxId).style.display = 'block';
+            const bar = document.getElementById(barId);
+            bar.style.width = '0%';
+
+            let progress = 0;
+            activeInterval = setInterval(() => {
+                // Animate up to 90%, slowing down as it gets closer
+                if (progress < 90) {
+                    let increment = Math.random() * 5 + 2;
+                    progress += increment;
+                    if (progress > 90) progress = 90;
+                    bar.style.width = progress + '%';
+                }
+            }, 150);
+        }
+
+        function finishProgress(boxId, barId) {
+            clearInterval(activeInterval);
+            const bar = document.getElementById(barId);
+            bar.style.width = '100%';
+
+            setTimeout(() => {
+                document.getElementById(boxId).style.display = 'none';
+                bar.style.width = '0%';
+            }, 1500); // Hide the bar after 1.5 seconds of showing 100%
+        }
+
+
+        // --- API LOGIC ---
         async function compressFile() {
             const fileInput = document.getElementById('fileInput');
             const statusDiv = document.getElementById('status');
@@ -90,11 +392,15 @@
                 return;
             }
 
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
+            // Start UI Feedback
+            statusDiv.style.display = "block";
+            statusDiv.innerText = "Analyzing entropy & compressing...";
+            statusDiv.style.backgroundColor = "rgba(99, 91, 255, 0.1)";
+            statusDiv.style.color = "var(--accent-primary)";
+            startProgress('compressProgressBox', 'compressProgressBar');
 
-            statusDiv.innerText = "Compressing...";
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
 
             try {
                 const response = await fetch('/compress', {
@@ -103,24 +409,32 @@
                 });
 
                 if (response.ok) {
-                    // Trigger file download
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = "compressed_" + file.name.replace('.txt', '.bin');
+                    a.download = "compressed_" + fileInput.files[0].name + ".bin";
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
 
-                    statusDiv.innerText = "Compression Complete! File downloaded.";
+                    // Success Feedback
+                    finishProgress('compressProgressBox', 'compressProgressBar');
+                    statusDiv.innerText = "✓ File successfully compressed!";
+                    statusDiv.style.backgroundColor = "rgba(0, 217, 36, 0.1)";
+                    statusDiv.style.color = "var(--success-green)";
                 } else {
-                    statusDiv.innerText = "Error during compression.";
-                    statusDiv.style.color = "red";
+                    const errText = await response.text();
+                    clearInterval(activeInterval);
+                    statusDiv.innerText = "Error: " + errText;
+                    statusDiv.style.backgroundColor = "rgba(255, 47, 76, 0.1)";
+                    statusDiv.style.color = "var(--error-red)";
                 }
             } catch (error) {
-                console.error(error);
+                clearInterval(activeInterval);
                 statusDiv.innerText = "Network Error.";
+                statusDiv.style.backgroundColor = "rgba(255, 47, 76, 0.1)";
+                statusDiv.style.color = "var(--error-red)";
             }
         }
 
@@ -130,16 +444,20 @@
             const statusDiv = document.getElementById('decodeStatus');
 
             if (fileInput.files.length === 0 || !originalNameInput.value) {
-                alert('Please select a .bin file and type the exact original filename (e.g., test.txt).');
+                alert('Please select a .bin file and type the exact original filename.');
                 return;
             }
+
+            // Start UI Feedback
+            statusDiv.style.display = "block";
+            statusDiv.innerText = "Rebuilding dictionary and decoding data...";
+            statusDiv.style.backgroundColor = "rgba(99, 91, 255, 0.1)";
+            statusDiv.style.color = "var(--accent-primary)";
+            startProgress('decompressProgressBox', 'decompressProgressBar');
 
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             formData.append('original_filename', originalNameInput.value);
-
-            statusDiv.innerText = "Decompressing data and rebuilding text...";
-            statusDiv.style.color = "#27ae60";
 
             try {
                 const response = await fetch('/decompress', {
@@ -148,7 +466,6 @@
                 });
 
                 if (response.ok) {
-                    // Trigger file download
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -158,20 +475,26 @@
                     a.click();
                     a.remove();
 
-                    statusDiv.innerText = "Decompression Complete! File restored.";
+                    // Success Feedback
+                    finishProgress('decompressProgressBox', 'decompressProgressBar');
+                    statusDiv.innerText = "✓ Original data restored perfectly!";
+                    statusDiv.style.backgroundColor = "rgba(0, 217, 36, 0.1)";
+                    statusDiv.style.color = "var(--success-green)";
                 } else {
                     const errText = await response.text();
+                    clearInterval(activeInterval);
                     statusDiv.innerText = errText;
-                    statusDiv.style.color = "red";
+                    statusDiv.style.backgroundColor = "rgba(255, 47, 76, 0.1)";
+                    statusDiv.style.color = "var(--error-red)";
                 }
             } catch (error) {
-                console.error(error);
+                clearInterval(activeInterval);
                 statusDiv.innerText = "Network Error.";
-                statusDiv.style.color = "red";
+                statusDiv.style.backgroundColor = "rgba(255, 47, 76, 0.1)";
+                statusDiv.style.color = "var(--error-red)";
             }
         }
     </script>
-
 </body>
 
 </html>
